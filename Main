@@ -22,6 +22,37 @@ inline void WaitEnter()
         while (cin.get()!='\n');
     }
 
+string intento(int intentos) {
+    string respuesta;
+    switch (intentos) {
+        case 0:
+            clear();
+            respuesta = "Inserte una opcion valida";
+            break;
+        case 1:
+            clear();
+            respuesta = "Inserte una opcion valida";
+            break;
+        case 2:
+            clear();
+            respuesta = "Inserte una opcion valida";
+            break;
+        case 3:
+            clear();
+            respuesta = "Ultima oportunidad, inserte una opcion valida";
+            break;
+        case 4: 
+            clear();
+            respuesta = "Adios...";
+            break;
+        case 5:
+            clear();
+            respuesta = " ";
+            break;
+    }
+    return respuesta;
+}
+
 class Contacto
 {
 private:
@@ -101,9 +132,18 @@ public:
     {
         cout << *this;
     }
+    
 };
 
 vector<Contacto> general;
+vector<Contacto> favoritos;
+vector<Contacto> recientes;
+
+void print(vector<Contacto>& lista){
+  for(int i=0; i < lista.size(); i++){
+      cout << lista[i] << endl;
+  }
+}
 
 int buscar_con(vector<Contacto>& lista, const string& elemento) {
     for (int i = 0; i < lista.size(); ++i) {
@@ -114,17 +154,38 @@ int buscar_con(vector<Contacto>& lista, const string& elemento) {
     return -1; 
 }
 
+void ordenar_general() {
+    sort(general.begin(), general.end(), [](const Contacto& a, const Contacto& b) {
+        return a.get_nombre() < b.get_nombre(); // sortea el vector en orden alfabético
+    });
+}
+
+void ordenar_favoritos() {
+    sort(favoritos.begin(), favoritos.end(), [](const Contacto& a, const Contacto& b) {
+        return a.get_nombre() < b.get_nombre(); // sortea el vector en orden alfabético
+    });
+}
 
 void anadir_contacto(){   
     bool n = true;
     string ic;
+    int intentos = 0;
     
     do{
         
         cout<<"Ingrese los datos del contacto:"<<endl<<"Icono (Único carácter):"<<endl<<"Lista de iconos"<<endl;
         calltext("listaicon.txt");
         int ans;
-        cin>>ans;
+        
+        if (!(cin >> ans)) {
+            cout << intento(intentos++) << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (intentos >= 5) {
+                exit(EXIT_SUCCESS);
+            }
+            continue;  
+        }
         
             switch(ans){
                 case 1:
@@ -185,7 +246,7 @@ void anadir_contacto(){
                     break;
                 
                 default:
-                    
+                    clear();
                     cout << "Ingrese un valor valido (1-9)" << endl;
                     break;
         
@@ -196,7 +257,6 @@ void anadir_contacto(){
     cin.ignore(); 
     string no;
     cout<<"Nombre:"<<endl;
-    cin.ignore();
     getline(cin, no);
     clear();
     
@@ -216,9 +276,11 @@ void anadir_contacto(){
     
     cout<<"El Contacto se ve así"<<endl;
     con.print_contacto();
+    
     cout<<endl<<"Desea editar el contacto?"<<endl<<"         'Y' , 'N'"<<endl;
     string ans2;
     cin>>ans2;
+    
     if(ans2 == "Y" || ans2 == "y")
     {
         anadir_contacto();
@@ -229,47 +291,160 @@ void anadir_contacto(){
         cout<<"Contacto agregado.";
         clear();
     }
-
-    cout<<endl<<"Desea añadir otro contacto?"<<endl<<"         'Y' , 'N'"<<endl;
+    
+    cout<<endl<<"Desea agregar el contacto a favoritos?"<<endl<<"         'Y' , 'N'"<<endl;
     string ans3;
     cin>>ans3;
+    
     if(ans3 == "Y" || ans3 == "y")
-    {
+    {cout << "No se guardo el contacto" <<endl;
         clear();
-        anadir_contacto();
+        favoritos.push_back(con);
+        cout << "El contacto se agrego a favoritos" << endl;
     }
     else if (ans3 == "N" || ans3 == "n")
     {
         clear();
     }
+
+    cout<<endl<<"Desea añadir otro contacto?"<<endl<<"         'Y' , 'N'"<<endl;
+    string ans4;
+    cin>>ans4;
+    
+    if(ans4 == "Y" || ans4 == "y")
+    {
+        clear();
+        anadir_contacto();
+    }
+    else if (ans4 == "N" || ans4 == "n")
+    {
+        clear();
+    }
+    
+    if (recientes.size() >= 5) 
+    {
+        recientes.erase(recientes.begin()); 
+    }
+    
+    recientes.push_back(con);
+    
+    ordenar_general();
+    ordenar_favoritos();
 }
 
 void revisar_lista()
 {
-    
+    if(general.empty()){
+        cout << "No tienes ningun contacto agregado" << endl;
+    }else{
+        cout << "Estos son todos tus contactos: " << endl; 
+        print(general);
+    }
 }
 
-void ordenar() {
-    sort(general.begin(), general.end(), [](const Contacto& a, const Contacto& b) {
-        return a.get_nombre() < b.get_nombre(); // sortea el vector en orden alfabético
-    });
+void revisar_favoritos()
+{
+    if(favoritos.empty()){
+        cout << "No tienes ningun contacto en favoritos" << endl;
+    }else{
+        cout << "Estos son tus contactos favoritos: " << endl; 
+        print(favoritos);
+    }
+}
+
+void revisar_recientes()
+{
+    if(recientes.empty()){
+        cout << "No tienes ningun contacto en recientes" << endl;
+    }else{
+        cout << "Estos son tus 5 contactos más recientes: " << endl; 
+        print(recientes);
+    }
 }
 
 void eliminar_contacto()
 {
     string con_eliminar;
     int resultado;
+    int resultado2;
+    int resultado3;
     
     cout << "Cual es el nombre del contacto que desea eliminar" << endl;
-    cin >> con_eliminar;
+
+    getline(cin, con_eliminar);
     
     resultado = buscar_con(general, con_eliminar);
+    resultado2 = buscar_con(favoritos, con_eliminar);
+    resultado3 = buscar_con(recientes, con_eliminar);
     
     if(resultado != -1){
         general.erase(general.begin() + resultado);
         cout << "El contacto fue eliminado con exito" << endl;
     }else{
         cout << "El contacto que quiere eliminar no se encuentra entre tus contactos" << endl; 
+    }
+    
+    if(resultado2 != -1){
+        favoritos.erase(favoritos.begin() + resultado2);
+        cout << "El contacto fue eliminado con exito de tu lista de favoritos" << endl;
+    }else{
+        cout << "El contacto que quiere eliminar no se encuentra entre tus contactos favoritos" << endl; 
+    }
+    
+    if(resultado3 != -1){
+        recientes.erase(recientes.begin() + resultado3);
+        cout << "El contacto fue eliminado con exito de tu lista de recientes" << endl;
+    }else{
+        cout << "El contacto que quiere eliminar no se encuentra entre tus contactos recientes" << endl; 
+    }
+}
+
+void eliminar_favorito()
+{
+    string con_eliminar;
+    int resultado;
+    
+    cout << "Cual es el nombre del contacto que desea eliminar de su lista de favoritos" << endl;
+
+    getline(cin, con_eliminar);
+    
+    resultado = buscar_con(favoritos, con_eliminar);
+    
+    if(resultado != -1){
+        favoritos.erase(favoritos.begin() + resultado);
+        cout << "El contacto fue eliminado con exito de tu lista de favoritos" << endl;
+    }else{
+        cout << "El contacto que quiere eliminar no se encuentra entre tus contactos favoritos" << endl; 
+    }
+    
+}
+
+void buscar_contacto()
+{
+    Contacto con;
+    string con_buscar;
+    int resultado;
+    
+    cout << "Nombre del contacto a buscar ?" << endl;
+    
+    getline(cin, con_buscar);
+    
+    resultado = buscar_con(general, con_buscar);
+    
+    con = general[resultado];
+    
+    if(resultado != -1){
+        cout << "El contacto se encontro" << endl;
+        con.print_contacto();
+        
+        if (recientes.size() >= 5) 
+        {
+        recientes.erase(recientes.begin()); 
+        }
+    
+        recientes.push_back(con);
+    }else{
+        cout << "El contacto desea buscar no esta en tu lista de contactos" << endl; 
     }
 }
 
@@ -279,42 +454,78 @@ int main()
     
     WaitEnter();
     clear();
-    
     bool m = true;
     int ans;
+    int intentos = 0;
     
     do{
+
         cout<<"Bienvenido a WhosApp, El directorio de contactos #1 de UR y (debatiblemente) del mundo"<<endl<<endl<<"-Que desea hacer hoy?"<<endl;
-        cout<<"1. Añadir Contacto"<<endl<<"2. Revisar lista de contactos"<<endl<<"3. Revisar favoritos"<<endl<<"4. Revisar recientes"<<endl<<"5. Eliminar contacto"<<endl<<"6. Editar contacto"<<endl<<"7. Salir"<<endl;
-        cin>> ans;
+        cout<<"1. Añadir Contacto"<<endl<<"2. Revisar lista de contactos"<<endl<<"3. Revisar favoritos"<<endl<<"4. Revisar recientes"<<endl<<"5. Eliminar contacto"<<endl<<"6. Eliminar favorito"<<endl<<"7. Buscar contacto"<<endl<< "8. Editar contacto"<<endl<<"9. Salir"<<endl;
+        
+        if (!(cin >> ans)) {
+            cout << intento(intentos++) << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (intentos >= 5) {
+                exit(EXIT_SUCCESS);
+            }
+            continue;  
+        }
+    
         switch(ans)
-        {
+        {   
+            // Añadir contacto
             case 1:
                 clear();
                 anadir_contacto();
-                m = true;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 break;
+            // Revisar lista
             case 2:
-                m = true;
+                clear();
+                revisar_lista();
                 break;
+            // Revisar favoritos
             case 3:
-                m = true;
+                clear();
+                revisar_favoritos();
                 break;
+            // Revisar recientes
             case 4:
-                m = true;
+                clear();
+                revisar_recientes();
                 break;
+            // Eliminar contacto
             case 5:
-                m = true;
+                clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                eliminar_contacto();
                 break;
+            // Eliminar de favorito
             case 6:
-                m = true;
+                clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                eliminar_favorito();
                 break;
+            // Buscar contacto
             case 7:
+                clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                buscar_contacto();
+                break;
+            // Editar contacto
+            case 8:
+                clear();
+                break; 
+            // Salir
+            case 9:
                 cout<<"Adios :D"<<endl;
                 m = false;
                 break;
             default:
-								cout << "Ingrese un valor valido (1-7)" << endl;
+                clear();
+		cout << "Ingrese un valor valido (1-7)" << endl;
                 break;
         }
         
