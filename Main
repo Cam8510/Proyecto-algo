@@ -480,7 +480,7 @@ void editar_contacto()
     if (pos != -1)
     {
         int ans_edt;
-        string nuevo_nombre;  // Declare the variables outside the switch
+        string nuevo_nombre;  
         string nuevo_correo;
         string nuevo_numero;
         string nueva_direccion;
