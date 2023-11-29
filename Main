@@ -61,16 +61,18 @@ private:
     string correo;
     bool favorito;
     string numero;
+    string direccion;
     int contador;
 public:
     Contacto()
     {}
-    Contacto(string i, string n, string c, string num)
+    Contacto(string i, string n, string c, string num, string dir)
     {
         icono = i;
         nombre = n;
         correo = c;
         numero = num;
+        direccion = dir;
     }
     
     string get_nombre() const
@@ -93,6 +95,15 @@ public:
     string get_numero()
     {
         return numero;
+    }
+    string get_direccion() const
+    {
+        return nombre;
+    }
+    
+    void set_direccion(string d)
+    {
+        direccion = d;
     }
     void set_numero(string num)
     {
@@ -121,7 +132,7 @@ public:
     string to_string()
     {
         string separacion = ", ";
-        return icono + separacion + nombre + separacion + correo + separacion + numero;
+        return icono + separacion + nombre + separacion + correo + separacion + numero + direccion;
     }
     
     friend ostream& operator<<(ostream& os, Contacto& b)
@@ -273,7 +284,12 @@ void anadir_contacto(){
     clear();
     cin.ignore(); 
     
-    Contacto con (ic,no,co,nu);
+    string dir;
+    cout<<"Direccion:"<<endl;
+    getline(cin, dir);
+    clear();
+    
+    Contacto con (ic,no,co,nu,dir);
     
     cout<<"El Contacto se ve así"<<endl;
     con.print_contacto();
@@ -467,13 +483,15 @@ void editar_contacto()
         string nuevo_nombre;  // Declare the variables outside the switch
         string nuevo_correo;
         string nuevo_numero;
+        string nueva_direccion;
 
         do {
             cout << "Menú de Edición:" << endl
                  << "1. Editar Nombre" << endl
                  << "2. Editar Correo" << endl
                  << "3. Editar Número" << endl
-                 << "4. Volver atrás" << endl
+                 << "4. Editar direccion" << endl
+                 << "5. Volver atrás" << endl
                  << "Seleccione una opción: ";
 
             if (!(cin >> ans_edt))
@@ -511,8 +529,16 @@ void editar_contacto()
                     clear();
                     cout << "Número actualizado con éxito." << endl;
                     break;
+                    
+                case 4: 
+                    cout << "Ingrese la nueva direccion: ";
+                    getline(cin, nueva_direccion);
+                    general[pos].set_direccion(nueva_direccion);
+                    clear();
+                    cout << "Número actualizado con éxito." << endl;
+                    break;
                 
-                case 4:
+                case 5:
                     clear();
                     cout << "Volviendo atrás..." << endl;
                     break;
