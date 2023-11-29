@@ -77,6 +77,7 @@ public:
     {
         return nombre;
     }
+    
     void set_nombre(string n)
     {
         nombre = n;
@@ -337,6 +338,7 @@ void revisar_lista()
     if(general.empty()){
         cout << "No tienes ningun contacto agregado" << endl;
     }else{
+        cout<<"Usted tiene "<<general.size()<<" contactos"<<endl;
         cout << "Estos son todos tus contactos: " << endl; 
         print(general);
     }
@@ -527,6 +529,106 @@ void editar_contacto()
 }
 
 
+void editar_contacto()
+{
+    string edt_nom;
+    int pos;
+
+    cout << "Ingrese el nombre del contacto que desea editar: ";
+    getline(cin, edt_nom);
+
+    // Buscar el contacto
+    pos = buscar_con(general, edt_nom);
+
+    if (pos != -1)
+    {
+        int ans_edt;
+        string nuevo_nombre;  // Declare the variables outside the switch
+        string nuevo_correo;
+        string nuevo_numero;
+
+        do {
+            cout << "Menú de Edición:" << endl
+                 << "1. Editar Nombre" << endl
+                 << "2. Editar Correo" << endl
+                 << "3. Editar Número" << endl
+                 << "4. Volver atrás" << endl
+                 << "Seleccione una opción: ";
+
+            if (!(cin >> ans_edt))
+            {
+                cout << "Ingrese una opción válida." << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                continue;
+            }
+
+            cin.ignore();
+
+            switch (ans_edt)
+            {
+                case 1:
+                    cout << "Ingrese el nuevo nombre: ";
+                    getline(cin, nuevo_nombre);
+                    general[pos].set_nombre(nuevo_nombre);
+                    clear();
+                    cout << "Nombre actualizado con éxito." << endl;
+                    break;
+                
+                case 2: 
+                    cout << "Ingrese el nuevo correo: ";
+                    getline(cin, nuevo_correo);
+                    general[pos].set_correo(nuevo_correo);
+                    clear();
+                    cout << "Correo actualizado con éxito." << endl;
+                    break;
+                
+                case 3: 
+                    cout << "Ingrese el nuevo número: ";
+                    getline(cin, nuevo_numero);
+                    general[pos].set_numero(nuevo_numero);
+                    clear();
+                    cout << "Número actualizado con éxito." << endl;
+                    break;
+                
+                case 4:
+                    clear();
+                    cout << "Volviendo atrás..." << endl;
+                    break;
+                default:
+                    clear();
+                    cout << "Ingrese una opción válida." << endl;
+            }
+        }
+        while (ans_edt != 4);
+    }
+    else
+    {
+        cout << "El contacto no fue encontrado." << endl;
+    }
+}
+
+void grupo_letra(){
+    char busc_letr;
+    int pos;
+
+    cout << "Ingrese la letra que desea buscar: ";
+    cin>> busc_letr;
+    int i = 0;
+    int contador = 0;
+    while(i<general.size()){
+        if(general[i].get_nombre()[0] == busc_letr){
+            cout<<general[i]<<endl;
+            contador++;
+        }
+        i++;
+    }
+    if (contador == 0){
+        cout<<"No hay ningún contacto guardado con esta letra"<<endl;
+    }
+    
+}
+
 int main()
 {   
     calltext("title.txt");
@@ -540,7 +642,7 @@ int main()
     do{
 
         cout<<"Bienvenido a WhosApp, El directorio de contactos #1 de UR y (debatiblemente) del mundo"<<endl<<endl<<"-Que desea hacer hoy?"<<endl;
-        cout<<"1. Añadir Contacto"<<endl<<"2. Revisar lista de contactos"<<endl<<"3. Revisar favoritos"<<endl<<"4. Revisar recientes"<<endl<<"5. Eliminar contacto"<<endl<<"6. Eliminar favorito"<<endl<<"7. Buscar contacto"<<endl<< "8. Editar contacto"<<endl<<"9. Salir"<<endl;
+        cout<<"1. Añadir Contacto"<<endl<<"2. Revisar lista de contactos"<<endl<<"3. Revisar favoritos"<<endl<<"4. Revisar recientes"<<endl<<"5. Eliminar contacto"<<endl<<"6. Eliminar favorito"<<endl<<"7. Buscar contacto"<<endl<< "8. Editar contacto"<<endl<<"9. Buscar un contacto mediante una letra"<<endl<<"10. Salir"<<endl;
         
         if (!(cin >> ans)) {
             cout << intento(intentos++) << endl;
@@ -597,10 +699,16 @@ int main()
             case 8:
                 clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		editar_contacto();
+		            editar_contacto();
                 break; 
-            // Salir
+            //ver el grupo de contactos segun la letra
             case 9:
+                clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		        grupo_letra();
+                break;
+            // Salir
+            case 10:
                 cout<<"Adios :D"<<endl;
                 m = false;
                 break;
