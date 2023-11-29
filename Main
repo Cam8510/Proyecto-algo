@@ -449,6 +449,7 @@ void buscar_contacto()
         cout << "El contacto desea buscar no esta en tu lista de contactos" << endl; 
     }
 }
+
 void editar_contacto()
 {
     string edt_nom;
