@@ -1,12 +1,16 @@
 #include <iostream>
+#include <iomanip>
 #include <cctype>
 #include <vector>
 #include <stack>
+#include <sstream>
 #include <queue>
 #include <fstream>
 #include <string>
 #include <limits>
 #include <algorithm>
+#include <chrono>
+#include <ctime>
 #include "imptext.h"
 
 using namespace std;
@@ -129,7 +133,7 @@ public:
     {
         favorito = f;
     }
-    string to_string()
+    string to_string() const
     {
         string separacion = ", ";
         return icono + separacion + nombre + separacion + correo + separacion + numero + separacion + direccion;
@@ -147,24 +151,16 @@ public:
     
 };
 
-// Creacion de los vectores necesarios para almacenar los contactos 
-vector<Contacto> general;		// Todos los contactos agregados por el usuario
-vector<Contacto> favoritos;		// Todos los contactos agregados a favoritos por el usuario	
-vector<Contacto> recientes;		// Todos los contactos agregados a recientes automaticamente 
-	|		
-// El vector de recientes tiene una funcion especial, se programo solo para guardar maximo cinco contactos,
-// sin embargo, se programo para que cuando exista un sexto contacto, se elimine el contacto mas antiguo entre los recientes,
-// para asi entonces dar espacio al nuevo contaco reciente
+vector<Contacto> general;
+vector<Contacto> favoritos;
+vector<Contacto> recientes;
 
-// Metodo que nos va a ayudar a mostrar al usuario dato por dato hasta que el vector quede vacio, 
-// en este caso se usara para mostrale al ususario los contactos almacenados en los vectores
 void print(vector<Contacto>& lista){
   for(int i=0; i < lista.size(); i++){
       cout << lista[i] << endl;
   }
 }
 
-// Metodo que recorre indice por indice de un vector hasta encontrar el elemento, en este caso dado por un usuario
 int buscar_con(vector<Contacto>& lista, const string& elemento) {
     for (int i = 0; i < lista.size(); ++i) {
         if (lista[i].get_nombre() == elemento) {
@@ -174,24 +170,10 @@ int buscar_con(vector<Contacto>& lista, const string& elemento) {
     return -1; 
 }
 
-// ---------> falta explicar
-
 void ordenar_general() {
     sort(general.begin(), general.end(), [](const Contacto& a, const Contacto& b) {
-        return a.get_nombre() < b.get_nombre(); // sortea el vector en orden alfabético, comparando el valor anterior con el actual
+        return a.get_nombre() < b.get_nombre(); // sortea el vector en orden alfabético
     });
-}
-
-string minuscula(string palabra){
-    for(int i = 0; i < palabra.length(); i++){
-            palabra[i] = tolower(palabra[i]); //pasa todas las letras de la palabra a minuscula
-    }
-    return palabra; //Devuelve la palabra en minuscula
-}
-
-char minuscula_char(char palabra){
-        palabra = tolower(palabra); //Lo mismo que el string pero para el caso de char
-    return palabra;
 }
 
 void ordenar_favoritos() {
@@ -292,13 +274,11 @@ void anadir_contacto(){
     string no;
     cout<<"Nombre:"<<endl;
     getline(cin, no);
-    no = minuscula(no);
     clear();
     
     cout<<"Correo:"<<endl;
     string co;
     cin>>co;
-    co = minuscula(co);
     cin.ignore();
     clear();
  
@@ -311,7 +291,6 @@ void anadir_contacto(){
     string dir;
     cout<<"Direccion:"<<endl;
     getline(cin, dir);
-    dir = minuscula(dir);
     clear();
     
     Contacto con (ic,no,co,nu,dir);
@@ -362,27 +341,29 @@ void anadir_contacto(){
     {
         clear();
     }
-        
+    
+    if (recientes.size() >= 5) 
+    {
+        recientes.erase(recientes.begin()); 
+    }
+    
+    recientes.push_back(con);
+    
     ordenar_general();
     ordenar_favoritos();
 }
 
-// El metodo revisa si el vector de contactos en general esta vacio, si lo esta le muestra al usuario que no tiene contactos agregados,
-// si tiene al menos un contacto se muestran los contactos con la informacion correspondiente 
 void revisar_lista()
 {
     if(general.empty()){
         cout << "No tienes ningun contacto agregado" << endl;
     }else{
-        cout<<"Usted tiene "<<general.size()<<" contactos"<<endl; //Muestra la cantidad de contactos
+        cout<<"Usted tiene "<<general.size()<<" contactos"<<endl;
         cout << "Estos son todos tus contactos: " << endl; 
         print(general);
     }
 }
 
-// El metodo es similar al anterior, solo que esta ves revisa los contactos en favoritos, si esta vacio 
-// le muestra al usuario que no tiene contactos agregados en favoritos, si tiene al menos un contacto 
-// se muestran los contactos con la informacion correspondiente 
 void revisar_favoritos()
 {
     if(favoritos.empty()){
@@ -393,9 +374,6 @@ void revisar_favoritos()
     }
 }
 
-// El metodo es similar al los anteriores, solo que esta ves revisa los contactos recientes, si esta vacio 
-// le muestra al usuario que no tiene contactos agregados en recientes, si tiene al menos un contacto 
-// se muestran los contactos con la informacion correspondiente 
 void revisar_recientes()
 {
     if(recientes.empty()){
@@ -406,8 +384,6 @@ void revisar_recientes()
     }
 }
 
-// Este metodo lo que hace es almacenar el nombre que el usuario desea eliminar, este se almacena y con el metodo implementado arriba
-// 'buscar_con' se busca ese contacto en los tres vectores, por cada vector que tenga ese contacto, se elimina 
 void eliminar_contacto()
 {
     string con_eliminar;
@@ -417,9 +393,7 @@ void eliminar_contacto()
     
     cout << "Cual es el nombre del contacto que desea eliminar" << endl;
 
-    // Sirve para guardar el nombre con espacios si es necesario
     getline(cin, con_eliminar);
-    con_eliminar = minuscula(con_eliminar);
     
     resultado = buscar_con(general, con_eliminar);
     resultado2 = buscar_con(favoritos, con_eliminar);
@@ -447,7 +421,6 @@ void eliminar_contacto()
     }
 }
 
-// Este metodo tiene la misma estructura que el anterior, sin embargo, este solo busca el contacto dentro del vector de favoritos
 void eliminar_favorito()
 {
     string con_eliminar;
@@ -456,7 +429,6 @@ void eliminar_favorito()
     cout << "Cual es el nombre del contacto que desea eliminar de su lista de favoritos" << endl;
 
     getline(cin, con_eliminar);
-    con_eliminar = minuscula(con_eliminar);
     
     resultado = buscar_con(favoritos, con_eliminar);
     
@@ -469,9 +441,6 @@ void eliminar_favorito()
     
 }
 
-// Este metodo lo que hace es almacenar el nombre del contacto que desea buscar el usuario y buscarlo en el vector general,
-// si este se encuentra se mostrara al usuario el contacto con toda la informacion correspondiente,
-// adicionalmente el comtacto buscado sera agregado al vector de recientes
 void buscar_contacto()
 {
     Contacto con;
@@ -481,13 +450,11 @@ void buscar_contacto()
     cout << "Nombre del contacto a buscar ?" << endl;
     
     getline(cin, con_buscar);
-    con_buscar = minuscula(con_buscar);
     
     resultado = buscar_con(general, con_buscar);
     
     con = general[resultado];
-
-// Condicional que nos ayudara a que el vector de recientes tenga como maximo cinco contactos
+    
     if(resultado != -1){
         cout << "El contacto se encontro" << endl;
         con.print_contacto();
@@ -510,7 +477,6 @@ void editar_contacto()
 
     cout << "Ingrese el nombre del contacto que desea editar: ";
     getline(cin, edt_nom);
-    edt_nom = minuscula(edt_nom);
 
     // Buscar el contacto
     pos = buscar_con(general, edt_nom);
@@ -518,7 +484,7 @@ void editar_contacto()
     if (pos != -1)
     {
         int ans_edt;
-        string nuevo_nombre;  
+        string nuevo_nombre;
         string nuevo_correo;
         string nuevo_numero;
         string nueva_direccion;
@@ -547,7 +513,6 @@ void editar_contacto()
                 case 1:
                     cout << "Ingrese el nuevo nombre: ";
                     getline(cin, nuevo_nombre);
-                    nuevo_nombre = minuscula(nuevo_nombre);
                     general[pos].set_nombre(nuevo_nombre);
                     clear();
                     cout << "Nombre actualizado con éxito." << endl;
@@ -556,7 +521,6 @@ void editar_contacto()
                 case 2: 
                     cout << "Ingrese el nuevo correo: ";
                     getline(cin, nuevo_correo);
-                    nuevo_correo = minuscula(nuevo_correo);
                     general[pos].set_correo(nuevo_correo);
                     clear();
                     cout << "Correo actualizado con éxito." << endl;
@@ -573,7 +537,6 @@ void editar_contacto()
                 case 4: 
                     cout << "Ingrese la nueva direccion: ";
                     getline(cin, nueva_direccion);
-                    nueva_direccion = minuscula(nueva_direccion);
                     general[pos].set_direccion(nueva_direccion);
                     clear();
                     cout << "Número actualizado con éxito." << endl;
@@ -596,27 +559,118 @@ void editar_contacto()
     }
 }
 
-void grupo_letra(){
-    char busc_letr; //se crean variables
+void grupo_letra()
+{
+    char busc_letr;
     int pos;
 
-    cout << "Ingrese la letra que desea buscar: "; //se crea la opcion con la que la persona coloca la letra que va a buscar
+    cout << "Ingrese la letra que desea buscar: ";
     cin>> busc_letr;
-    busc_letr = minuscula_char(busc_letr); //la pasa a minuscula
-    
-    int i = 0; //mas variables
+    int i = 0;
     int contador = 0;
-    while(i<general.size()){ //se recorre toda la lista de contactos
-        if(general[i].get_nombre()[0] == busc_letr){ //si la primera letra del nombre coincide con la de ingresada, se imprime el contacto
+    while(i<general.size()){
+        if(general[i].get_nombre()[0] == busc_letr){
             cout<<general[i]<<endl;
-            contador++; //se suma el contador
+            contador++;
         }
-        i++; //Se suma a i para que recorra toda la lista
+        i++;
     }
-    if (contador == 0){ //si al recorrer toda la lista el contador sigue en 0, no hay contactos con esa letra
+    if (contador == 0){
         cout<<"No hay ningún contacto guardado con esta letra"<<endl;
     }
     
+}
+
+Contacto analizar_contacto(const string& line)
+{
+    stringstream ss(line);
+    string icono, nombre, correo, numero, direccion;
+
+    getline(ss, icono, ',');
+    getline(ss, nombre, ',');
+    getline(ss, correo, ',');
+    getline(ss, numero, ',');
+    getline(ss, direccion);
+
+    return Contacto(icono, nombre, correo, numero, direccion);
+}
+
+const string nombre_copia_prefijo = "copia_seguridad_";
+
+void copia_contactos(const vector<Contacto>& contacts)
+{
+    auto now = chrono::system_clock::now();
+    auto time = chrono::system_clock::to_time_t(now);
+    stringstream ss;
+    ss << put_time(localtime(&time), "%Y%m%d%H%M%S");
+    string timestamp = ss.str();
+
+    string nombre_copia = nombre_copia_prefijo + timestamp + ".txt";
+
+    ofstream copia(nombre_copia);
+    if (!copia.is_open())
+    {
+        cerr << "Error: No fue posible crear la copia de seguridad" << endl;
+        return;
+    }
+
+    for (const auto& contact : contacts) {
+        copia << contact.to_string() << "\n";
+    }
+
+    copia.close();
+    cout << "Copia de seguridad creada exitosamente: " << nombre_copia << endl;
+}
+
+void lista_copias() {
+    ifstream copia(nombre_copia_prefijo);
+    if (!copia.is_open()) {
+        cout << "No hay copias disponibles." << endl;
+        return;
+    }
+
+    cout << "Copias disponibles:" <<endl;
+    string line;
+    while (getline(copia, line)) {
+        cout << line << endl;
+    }
+
+    copia.close();
+}
+
+
+void cargar_copia(vector<Contacto>& contacts)
+{
+    string ans_copia;
+    cout << "Ingrese el nombre de la copia que quiere cargar: ";
+    cin >> ans_copia;
+
+    ifstream copia(ans_copia);
+    if (!copia.is_open())
+    {
+        cerr << "Error: No fue posible abrir la copia de seguridad." << endl;
+        return;
+    }
+    
+    general.clear();
+    favoritos.clear();
+    recientes.clear();
+
+    string line;
+    while (getline(copia, line))
+    {
+        Contacto contacto = analizar_contacto(line);
+        general.push_back(contacto);
+        if (recientes.size() >= 5)
+        {
+            recientes.erase(recientes.begin());
+        }
+
+        recientes.push_back(contacto);
+    }
+
+    copia.close();
+    cout << "Copia cargada exitosamente." << endl;
 }
 
 void tamano(){
@@ -663,8 +717,21 @@ int main()
     
     do{
 
-        cout<<"Bienvenido a WhosApp, El directorio de contactos #1 de UR y (debatiblemente) del mundo"<<endl<<endl<<"-Que desea hacer hoy?"<<endl;
-        cout<<"1. Añadir Contacto"<<endl<<"2. Revisar lista de contactos"<<endl<<"3. Revisar favoritos"<<endl<<"4. Revisar recientes"<<endl<<"5. Eliminar contacto"<<endl<<"6. Eliminar favorito"<<endl<<"7. Buscar contacto"<<endl<< "8. Editar contacto"<<endl<<"9. Buscar un contacto mediante una letra"<<endl<<"10. Ver la cantidad de contactos"<<endl<<"11. Salir"<<endl;
+        cout<<"Bienvenido a WhosApp, El directorio de contactos #1 de UR y (debatiblemente) del mundo"<<endl;
+        cout<< "-Que desea hacer hoy?" << endl
+            << "1. Añadir Contacto" << endl
+            << "2. Revisar lista de contactos" << endl
+            << "3. Revisar favoritos" << endl
+            << "4. Revisar recientes" << endl
+            << "5. Eliminar contacto" << endl
+            << "6. Eliminar favorito" << endl
+            << "7. Buscar contacto" << endl
+            << "8. Editar contacto" << endl
+            << "9. Buscar un contacto mediante una letra" << endl
+            <<"10. Ver la cantidad de contactos"<<endl
+            << "11. Guardar copia de seguridad" << endl
+            << "12. Cargar copia de seguridad" << endl
+            << "13. Salir" << endl;
         
         if (!(cin >> ans)) {
             cout << intento(intentos++) << endl;
@@ -721,7 +788,7 @@ int main()
             case 8:
                 clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		        editar_contacto();
+		            editar_contacto();
                 break; 
             //ver el grupo de contactos segun la letra
             case 9:
@@ -729,22 +796,38 @@ int main()
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		        grupo_letra();
                 break;
+            //Guardar copia de seguridad
             case 10:
                 clear();
                 tamano();
                 break;
             // Salir
             case 11:
-                cout<<"Adios :D"<<endl;
+                clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                copia_contactos(general);
+                cout << "Copia de seguridad guardada exitosamente." << endl;
+                break;
+            //Cargar copia de seguridad
+            case 12:
+                clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cargar_copia(general);
+                cout << "Copia de seguridad cargada exitosamente." << endl;
+                break;
+            // Salir
+            case 13:
+                cout << "Adios :D" << endl;
                 m = false;
                 break;
+                
             default:
                 clear();
-		cout << "Ingrese un valor valido (1-7)" << endl;
+                cout << "Ingrese un valor valido (1-13)" << endl;
                 break;
         }
         
-    }while(m);
+    } while(m);
     
     return 0;
 }
