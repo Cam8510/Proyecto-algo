@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cctype>
 #include <vector>
 #include <stack>
@@ -8,6 +9,7 @@
 #include <string>
 #include <limits>
 #include <algorithm>
+#include <chrono>
 #include <ctime>
 #include "imptext.h"
 
@@ -593,13 +595,22 @@ Contacto analizar_contacto(const string& line)
     return Contacto(icono, nombre, correo, numero, direccion);
 }
 
-const string nombre_copia = "copia_seguridad.txt";
+const string nombre_copia_prefijo = "copia_seguridad_";
 
 void copia_contactos(const vector<Contacto>& contacts)
 {
+    auto now = chrono::system_clock::now();
+    auto time = chrono::system_clock::to_time_t(now);
+    stringstream ss;
+    ss << put_time(localtime(&time), "%Y%m%d%H%M%S");
+    string timestamp = ss.str();
+
+    string nombre_copia = nombre_copia_prefijo + timestamp + ".txt";
+
     ofstream copia(nombre_copia);
-    if (!copia.is_open()) {
-        cerr << "Error: No fue posible crear la copia de seguridad" <<endl;
+    if (!copia.is_open())
+    {
+        cerr << "Error: No fue posible crear la copia de seguridad" << endl;
         return;
     }
 
@@ -608,11 +619,11 @@ void copia_contactos(const vector<Contacto>& contacts)
     }
 
     copia.close();
-    cout << "Copia de seguridad creada exitosamente : " << nombre_copia << endl;
+    cout << "Copia de seguridad creada exitosamente: " << nombre_copia << endl;
 }
 
 void lista_copias() {
-    ifstream copia(nombre_copia);
+    ifstream copia(nombre_copia_prefijo);
     if (!copia.is_open()) {
         cout << "No hay copias disponibles." << endl;
         return;
@@ -662,6 +673,38 @@ void cargar_copia(vector<Contacto>& contacts)
     cout << "Copia cargada exitosamente." << endl;
 }
 
+void tamano(){
+    int opc = 0; //variables
+    bool valido;
+    cout<<"Ingrese si quiere ver:"<<endl<<"1. La cantidad de contactos en la lista general"<<endl<<"2. Ver la cantidad de contactos en favoritos"<<endl;
+    cin>> opc;
+    
+    switch(opc){
+        case 1:
+            if(general.size()==0){ //si no hay contactos en general
+                cout<<"No hay contactos guardados"<<endl;
+                break;
+            }
+            else{ //muestra la cantidad
+                cout<<"Hay "<<general.size()<<" contactos guardados"<<endl;
+                break;
+            }
+        case 2: //si no hay contactos en favoritos
+            if(favoritos.size()==0){
+                cout<<"No hay contactos agregados en favoritos"<<endl;
+                break;
+            }
+            else{
+                cout<<"Hay "<<favoritos.size()<<" contactos agregados en favoritos"<<endl;
+                break;
+            }
+        default: //si la opción digitada no es valida
+            cout<<"Esto no es una opción valida, digite nuevamente"<<endl;
+            tamano();
+            break;
+    }
+}
+
 int main()
 {   
     calltext("title.txt");
@@ -674,7 +717,7 @@ int main()
     
     do{
 
-        cout<<"Bienvenido a WhosApp, El directorio de contactos #1 de UR y (debatiblemente) del mundo"<<endl<<endl<<"-Que desea hacer hoy?"<<endl;
+        cout<<"Bienvenido a WhosApp, El directorio de contactos #1 de UR y (debatiblemente) del mundo"<<endl;
         cout<< "-Que desea hacer hoy?" << endl
             << "1. Añadir Contacto" << endl
             << "2. Revisar lista de contactos" << endl
@@ -685,9 +728,10 @@ int main()
             << "7. Buscar contacto" << endl
             << "8. Editar contacto" << endl
             << "9. Buscar un contacto mediante una letra" << endl
-            << "10. Guardar copia de seguridad" << endl
-            << "11. Cargar copia de seguridad" << endl
-            << "12. Salir" << endl;
+            <<"10. Ver la cantidad de contactos"<<endl
+            << "11. Guardar copia de seguridad" << endl
+            << "12. Cargar copia de seguridad" << endl
+            << "13. Salir" << endl;
         
         if (!(cin >> ans)) {
             cout << intento(intentos++) << endl;
@@ -755,26 +799,31 @@ int main()
             //Guardar copia de seguridad
             case 10:
                 clear();
+                tamano();
+                break;
+            // Salir
+            case 11:
+                clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 copia_contactos(general);
                 cout << "Copia de seguridad guardada exitosamente." << endl;
                 break;
             //Cargar copia de seguridad
-            case 11:
+            case 12:
                 clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cargar_copia(general);
                 cout << "Copia de seguridad cargada exitosamente." << endl;
                 break;
             // Salir
-            case 12:
+            case 13:
                 cout << "Adios :D" << endl;
                 m = false;
                 break;
                 
             default:
                 clear();
-                cout << "Ingrese un valor valido (1-12)" << endl;
+                cout << "Ingrese un valor valido (1-13)" << endl;
                 break;
         }
         
