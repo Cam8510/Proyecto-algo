@@ -168,19 +168,19 @@ int buscar_con(vector<Contacto>& lista, const string& elemento) {
 
 void ordenar_general() {
     sort(general.begin(), general.end(), [](const Contacto& a, const Contacto& b) {
-        return a.get_nombre() < b.get_nombre(); // sortea el vector en orden alfabético
+        return a.get_nombre() < b.get_nombre(); // sortea el vector en orden alfabético, comparando el valor anterior con el actual
     });
 }
 
 string minuscula(string palabra){
     for(int i = 0; i < palabra.length(); i++){
-            palabra[i] = tolower(palabra[i]);
+            palabra[i] = tolower(palabra[i]); //pasa todas las letras de la palabra a minuscula
     }
-    return palabra;
+    return palabra; //Devuelve la palabra en minuscula
 }
 
 char minuscula_char(char palabra){
-        palabra = tolower(palabra);
+        palabra = tolower(palabra); //Lo mismo que el string pero para el caso de char
     return palabra;
 }
 
@@ -369,7 +369,7 @@ void revisar_lista()
     if(general.empty()){
         cout << "No tienes ningun contacto agregado" << endl;
     }else{
-        cout<<"Usted tiene "<<general.size()<<" contactos"<<endl;
+        cout<<"Usted tiene "<<general.size()<<" contactos"<<endl; //Muestra la cantidad de contactos
         cout << "Estos son todos tus contactos: " << endl; 
         print(general);
     }
@@ -578,26 +578,58 @@ void editar_contacto()
 }
 
 void grupo_letra(){
-    char busc_letr;
+    char busc_letr; //se crean variables
     int pos;
 
-    cout << "Ingrese la letra que desea buscar: ";
+    cout << "Ingrese la letra que desea buscar: "; //se crea la opcion con la que la persona coloca la letra que va a buscar
     cin>> busc_letr;
-    busc_letr = minuscula_char(busc_letr);
+    busc_letr = minuscula_char(busc_letr); //la pasa a minuscula
     
-    int i = 0;
+    int i = 0; //mas variables
     int contador = 0;
-    while(i<general.size()){
-        if(general[i].get_nombre()[0] == busc_letr){
+    while(i<general.size()){ //se recorre toda la lista de contactos
+        if(general[i].get_nombre()[0] == busc_letr){ //si la primera letra del nombre coincide con la de ingresada, se imprime el contacto
             cout<<general[i]<<endl;
-            contador++;
+            contador++; //se suma el contador
         }
-        i++;
+        i++; //Se suma a i para que recorra toda la lista
     }
-    if (contador == 0){
+    if (contador == 0){ //si al recorrer toda la lista el contador sigue en 0, no hay contactos con esa letra
         cout<<"No hay ningún contacto guardado con esta letra"<<endl;
     }
     
+}
+
+void tamano(){
+    int opc = 0; //variables
+    bool valido;
+    cout<<"Ingrese si quiere ver:"<<endl<<"1. La cantidad de contactos en la lista general"<<endl<<"2. Ver la cantidad de contactos en favoritos"<<endl;
+    cin>> opc;
+    
+    switch(opc){
+        case 1:
+            if(general.size()==0){ //si no hay contactos en general
+                cout<<"No hay contactos guardados"<<endl;
+                break;
+            }
+            else{ //muestra la cantidad
+                cout<<"Hay "<<general.size()<<" contactos guardados"<<endl;
+                break;
+            }
+        case 2: //si no hay contactos en favoritos
+            if(favoritos.size()==0){
+                cout<<"No hay contactos agregados en favoritos"<<endl;
+                break;
+            }
+            else{
+                cout<<"Hay "<<favoritos.size()<<" contactos agregados en favoritos"<<endl;
+                break;
+            }
+        default: //si la opción digitada no es valida
+            cout<<"Esto no es una opción valida, digite nuevamente"<<endl;
+            tamano();
+            break;
+    }
 }
 
 int main()
@@ -613,7 +645,7 @@ int main()
     do{
 
         cout<<"Bienvenido a WhosApp, El directorio de contactos #1 de UR y (debatiblemente) del mundo"<<endl<<endl<<"-Que desea hacer hoy?"<<endl;
-        cout<<"1. Añadir Contacto"<<endl<<"2. Revisar lista de contactos"<<endl<<"3. Revisar favoritos"<<endl<<"4. Revisar recientes"<<endl<<"5. Eliminar contacto"<<endl<<"6. Eliminar favorito"<<endl<<"7. Buscar contacto"<<endl<< "8. Editar contacto"<<endl<<"9. Buscar un contacto mediante una letra"<<endl<<"10. Salir"<<endl;
+        cout<<"1. Añadir Contacto"<<endl<<"2. Revisar lista de contactos"<<endl<<"3. Revisar favoritos"<<endl<<"4. Revisar recientes"<<endl<<"5. Eliminar contacto"<<endl<<"6. Eliminar favorito"<<endl<<"7. Buscar contacto"<<endl<< "8. Editar contacto"<<endl<<"9. Buscar un contacto mediante una letra"<<endl<<"10. Ver la cantidad de contactos"<<endl<<"11. Salir"<<endl;
         
         if (!(cin >> ans)) {
             cout << intento(intentos++) << endl;
@@ -670,7 +702,7 @@ int main()
             case 8:
                 clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		            editar_contacto();
+		        editar_contacto();
                 break; 
             //ver el grupo de contactos segun la letra
             case 9:
@@ -678,8 +710,12 @@ int main()
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		        grupo_letra();
                 break;
-            // Salir
             case 10:
+                clear();
+                tamano();
+                break;
+            // Salir
+            case 11:
                 cout<<"Adios :D"<<endl;
                 m = false;
                 break;
