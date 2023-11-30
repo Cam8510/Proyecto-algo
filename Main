@@ -147,16 +147,24 @@ public:
     
 };
 
-vector<Contacto> general;
-vector<Contacto> favoritos;
-vector<Contacto> recientes;
+// Creacion de los vectores necesarios para almacenar los contactos 
+vector<Contacto> general;		// Todos los contactos agregados por el usuario
+vector<Contacto> favoritos;		// Todos los contactos agregados a favoritos por el usuario	
+vector<Contacto> recientes;		// Todos los contactos agregados a recientes automaticamente 
+	|		
+// El vector de recientes tiene una funcion especial, se programo solo para guardar maximo cinco contactos,
+// sin embargo, se programo para que cuando exista un sexto contacto, se elimine el contacto mas antiguo entre los recientes,
+// para asi entonces dar espacio al nuevo contaco reciente
 
+// Metodo que nos va a ayudar a mostrar al usuario dato por dato hasta que el vector quede vacio, 
+// en este caso se usara para mostrale al ususario los contactos almacenados en los vectores
 void print(vector<Contacto>& lista){
   for(int i=0; i < lista.size(); i++){
       cout << lista[i] << endl;
   }
 }
 
+// Metodo que recorre indice por indice de un vector hasta encontrar el elemento, en este caso dado por un usuario
 int buscar_con(vector<Contacto>& lista, const string& elemento) {
     for (int i = 0; i < lista.size(); ++i) {
         if (lista[i].get_nombre() == elemento) {
@@ -165,6 +173,8 @@ int buscar_con(vector<Contacto>& lista, const string& elemento) {
     }
     return -1; 
 }
+
+// ---------> falta explicar
 
 void ordenar_general() {
     sort(general.begin(), general.end(), [](const Contacto& a, const Contacto& b) {
@@ -352,18 +362,13 @@ void anadir_contacto(){
     {
         clear();
     }
-    
-    if (recientes.size() >= 5) 
-    {
-        recientes.erase(recientes.begin()); 
-    }
-    
-    recientes.push_back(con);
-    
+        
     ordenar_general();
     ordenar_favoritos();
 }
 
+// El metodo revisa si el vector de contactos en general esta vacio, si lo esta le muestra al usuario que no tiene contactos agregados,
+// si tiene al menos un contacto se muestran los contactos con la informacion correspondiente 
 void revisar_lista()
 {
     if(general.empty()){
@@ -375,6 +380,9 @@ void revisar_lista()
     }
 }
 
+// El metodo es similar al anterior, solo que esta ves revisa los contactos en favoritos, si esta vacio 
+// le muestra al usuario que no tiene contactos agregados en favoritos, si tiene al menos un contacto 
+// se muestran los contactos con la informacion correspondiente 
 void revisar_favoritos()
 {
     if(favoritos.empty()){
@@ -385,6 +393,9 @@ void revisar_favoritos()
     }
 }
 
+// El metodo es similar al los anteriores, solo que esta ves revisa los contactos recientes, si esta vacio 
+// le muestra al usuario que no tiene contactos agregados en recientes, si tiene al menos un contacto 
+// se muestran los contactos con la informacion correspondiente 
 void revisar_recientes()
 {
     if(recientes.empty()){
@@ -395,6 +406,8 @@ void revisar_recientes()
     }
 }
 
+// Este metodo lo que hace es almacenar el nombre que el usuario desea eliminar, este se almacena y con el metodo implementado arriba
+// 'buscar_con' se busca ese contacto en los tres vectores, por cada vector que tenga ese contacto, se elimina 
 void eliminar_contacto()
 {
     string con_eliminar;
@@ -404,6 +417,7 @@ void eliminar_contacto()
     
     cout << "Cual es el nombre del contacto que desea eliminar" << endl;
 
+    // Sirve para guardar el nombre con espacios si es necesario
     getline(cin, con_eliminar);
     con_eliminar = minuscula(con_eliminar);
     
@@ -433,6 +447,7 @@ void eliminar_contacto()
     }
 }
 
+// Este metodo tiene la misma estructura que el anterior, sin embargo, este solo busca el contacto dentro del vector de favoritos
 void eliminar_favorito()
 {
     string con_eliminar;
@@ -454,6 +469,9 @@ void eliminar_favorito()
     
 }
 
+// Este metodo lo que hace es almacenar el nombre del contacto que desea buscar el usuario y buscarlo en el vector general,
+// si este se encuentra se mostrara al usuario el contacto con toda la informacion correspondiente,
+// adicionalmente el comtacto buscado sera agregado al vector de recientes
 void buscar_contacto()
 {
     Contacto con;
@@ -468,7 +486,8 @@ void buscar_contacto()
     resultado = buscar_con(general, con_buscar);
     
     con = general[resultado];
-    
+
+// Condicional que nos ayudara a que el vector de recientes tenga como maximo cinco contactos
     if(resultado != -1){
         cout << "El contacto se encontro" << endl;
         con.print_contacto();
